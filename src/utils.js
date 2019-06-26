@@ -16,12 +16,3 @@ export const keyMirror = (object = {}) => {
     return result;
   }, {});
 };
-
-export const mergeActions = ({ actionTypes, reducer }) => {
-  return actionTypes.reduce((result, actionType) => {
-    // eslint-disable-next-line no-param-reassign
-    result[actionType] = reducer;
-
-    return result;
-  }, {});
-};

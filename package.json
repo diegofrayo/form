@@ -1,6 +1,6 @@
 {
   "name": "@diegofrayo/form",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "React component to build and validate forms easily",
   "license": "MIT",
   "main": "dist/form.js",
@@ -25,7 +25,9 @@
     "type": "git"
   },
   "dependencies": {
-    "@diegofrayo/vlt": "^1.0.0"
+    "@diegofrayo/redux-utils": "^1.0.2",
+    "@diegofrayo/vlt": "^1.0.0",
+    "redux-logger": "^3.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
@@ -33,22 +35,22 @@
     "@babel/preset-env": "^7.4.3",
     "@babel/preset-react": "^7.0.0",
     "@diegofrayo/eslint-config": "^1.0.0",
+    "@testing-library/react": "^8.0.4",
     "babel-jest": "^24.7.1",
     "eslint": "latest",
     "husky": "^1.3.1",
-    "jest": "^24.7.1",
-    "jest-dom": "^3.1.3",
+    "jest": "^24.8.0",
+    "jest-dom": "^3.5.0",
     "lint-staged": "^8.1.5",
     "microbundle": "^0.11.0",
     "prettier": "^1.16.4",
-    "react": "^16.8.4",
+    "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-testing-library": "^7.0.0",
     "regenerator-runtime": "^0.13.2"
   },
   "peerDependencies": {
     "prop-types": "^15.7.2",
-    "react": "^16.8.4"
+    "react": "^16.8.6"
   },
   "scripts": {
     "lint": "eslint -c eslintrc.json 'src/*'",
@@ -56,12 +58,11 @@
     "prepublish": "npm run build",
     "test": "jest tests/*.spec.{jsx,js}",
     "upload": "npm publish --access public",
-    "dev": "microbundle --entry src/index.jsx --output dist --jsx React.createElement --name @diegofrayo/form --globals prop-types=PropTypes,@diegofrayo/vlt=dfr_vlt --no-compress --watch",
-    "build": "microbundle --entry src/index.jsx --output dist --jsx React.createElement --name @diegofrayo/form --globals prop-types=PropTypes,@diegofrayo/vlt=dfr_vlt"
+    "dev": "microbundle --entry src/index.jsx --output dist --jsx React.createElement --name @diegofrayo/form --globals prop-types=PropTypes,@diegofrayo/vlt=dfr_vlt,@diegofrayo/redux-utils=dfr_rdx,redux-logger=rdx_logger --no-compress --watch",
+    "build": "microbundle --entry src/index.jsx --output dist --jsx React.createElement --name @diegofrayo/form --globals prop-types=PropTypes,@diegofrayo/vlt=dfr_vlt,@diegofrayo/redux-utils=dfr_rdx,redux-logger=rdx_logger"
   },
   "files": [
     "dist/*.js",
-    "dist/*.mjs",
     "package.json",
     "README.md"
   ],

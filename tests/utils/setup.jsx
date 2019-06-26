@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-testing-library';
+import { render } from '@testing-library/react';
 
 const App = ({ children }) => {
   return <main>{children}</main>;
@@ -19,6 +19,6 @@ const sleep = tm => {
 
 jest.setTimeout(10000);
 
-export * from 'react-testing-library';
+export * from '@testing-library/react';
 
 export { customRender as render, sleep };

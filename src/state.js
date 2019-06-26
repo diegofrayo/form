@@ -1,9 +1,28 @@
-import React from 'react';
+import logger from 'redux-logger';
+import { duck, useEnhancedReducer } from '@diegofrayo/redux-utils';
 
 import { FORM_STATUS, FORM_SUBMIT_RESPONSE_TYPES } from './constants';
-import { keyMirror, isFormValid, mergeActions } from './utils';
+import { isFormValid } from './utils';
 
-const INITIAL_STATE = {
+const formDuck = duck.create('form');
+
+// --- ACTION TYPES ---
+const ActionTypes = formDuck.defineTypes([
+  'RESET_SUBMIT_RESPONSE',
+  'SET_FAILURE_SUBMIT_RESPONSE',
+  'SET_SUCCESS_SUBMIT_RESPONSE',
+  'SET_LOADING_FORM_STATUS',
+  'SET_FORM_ERRORS',
+  'SET_FORM_INPUTS_STATE',
+  'SET_FORM_VALUES',
+  'SET_FORM_STATUS',
+  'SET_ERROR_MESSAGE',
+  'SET_INPUT_STATE',
+  'SET_INPUT_VALUE',
+]);
+
+// --- INITIAL STATE ---
+const initialState = {
   formErrors: {},
   formStatus: FORM_STATUS.VALID,
   formValues: null,
@@ -15,25 +34,13 @@ const INITIAL_STATE = {
   },
 };
 
-const ACTIONS = keyMirror([
-  'RESET_SUBMIT_RESPONSE',
-  'SET_FAILURE_SUBMIT_RESPONSE',
-  'SET_SUCCESS_SUBMIT_RESPONSE',
-  'SET_LOADING_FORM_STATUS',
-  'SET_FORM_ERRORS',
-  'SET_FORM_INPUTS_STATE',
-  'SET_FORM_VALUES',
-  'SET_ERROR_MESSAGE',
-  'SET_INPUT_STATE',
-  'SET_INPUT_VALUE',
-]);
-
-const reducerActions = {
-  [ACTIONS.RESET_SUBMIT_RESPONSE]: state => {
-    return { ...state, submitResponse: INITIAL_STATE.submitResponse };
+// --- REDUCER HANDLERS ---
+const reducerHandlers = {
+  [ActionTypes.RESET_SUBMIT_RESPONSE]: state => {
+    return { ...state, submitResponse: initialState.submitResponse };
   },
 
-  [ACTIONS.SET_FAILURE_SUBMIT_RESPONSE]: (state, action) => {
+  [ActionTypes.SET_FAILURE_SUBMIT_RESPONSE]: (state, action) => {
     return {
       ...state,
       formStatus: FORM_STATUS.VALID,
@@ -45,7 +52,7 @@ const reducerActions = {
     };
   },
 
-  [ACTIONS.SET_SUCCESS_SUBMIT_RESPONSE]: (state, action) => {
+  [ActionTypes.SET_SUCCESS_SUBMIT_RESPONSE]: (state, action) => {
     return {
       ...state,
       formStatus: FORM_STATUS.VALID,
@@ -57,15 +64,15 @@ const reducerActions = {
     };
   },
 
-  [ACTIONS.SET_LOADING_FORM_STATUS]: state => {
+  [ActionTypes.SET_LOADING_FORM_STATUS]: state => {
     return {
       ...state,
       formStatus: FORM_STATUS.LOADING,
-      submitResponse: { ...INITIAL_STATE.submitResponse },
+      submitResponse: { ...initialState.submitResponse },
     };
   },
 
-  [ACTIONS.SET_FORM_INPUTS_STATE]: (state, action) => {
+  [ActionTypes.SET_FORM_INPUTS_STATE]: (state, action) => {
     return {
       ...state,
       formInputsState: action.payload,
@@ -73,7 +80,7 @@ const reducerActions = {
     };
   },
 
-  [ACTIONS.SET_ERROR_MESSAGE]: (state, action) => {
+  [ActionTypes.SET_ERROR_MESSAGE]: (state, action) => {
     const stateUpdates = ((formErrors, formInputsState) => {
       const formErrorsUpdated = { ...formErrors };
       const formInputsStateUpdated = { ...formInputsState };
@@ -101,7 +108,7 @@ const reducerActions = {
     };
   },
 
-  [ACTIONS.SET_INPUT_STATE]: (state, action) => {
+  [ActionTypes.SET_INPUT_STATE]: (state, action) => {
     const stateUpdates = ((formErrors, formInputsState, payload) => {
       const formInputsStateUpdated = {
         ...formInputsState,
@@ -122,7 +129,7 @@ const reducerActions = {
     };
   },
 
-  [ACTIONS.SET_INPUT_VALUE]: (state, action) => {
+  [ActionTypes.SET_INPUT_VALUE]: (state, action) => {
     return {
       ...state,
       formValues: {
@@ -132,9 +139,13 @@ const reducerActions = {
     };
   },
 
-  ...mergeActions({
-    actionTypes: [ACTIONS.SET_FORM_ERRORS, ACTIONS.SET_FORM_VALUES],
-    reducer: (state, action) => {
+  ...duck.mergeActions({
+    types: [
+      ActionTypes.SET_FORM_ERRORS,
+      ActionTypes.SET_FORM_VALUES,
+      ActionTypes.SET_FORM_STATUS,
+    ],
+    handler: (state, action) => {
       return {
         ...state,
         ...action.payload,
@@ -147,68 +158,74 @@ const reducerActions = {
   },
 };
 
-const reducer = (state, action) => {
-  const reducerAction = reducerActions[action.type] || reducerActions.default;
-  // console.group('ACTION', action.type);
-  const newState = reducerAction(state, action);
-  // console.log('NEW STATE', newState);
-  // console.groupEnd(newState);
-  return newState;
-};
+// --- REDUCER ---
+const reducer = formDuck.createReducer(reducerHandlers, initialState);
 
-const useForm = () => {
-  const [state, dispatch] = React.useReducer(reducer, INITIAL_STATE);
+// --- HOOK ---
+const useForm = enableLogging => {
+  const [state, dispatch] = useEnhancedReducer(
+    reducer,
+    initialState,
+    enableLogging ? [logger] : undefined,
+  );
 
   const resetSubmitResponse = () => {
-    dispatch({ type: ACTIONS.RESET_SUBMIT_RESPONSE });
+    dispatch({ type: ActionTypes.RESET_SUBMIT_RESPONSE });
   };
 
   const setFailureSubmitResponse = message => {
-    dispatch({ type: ACTIONS.SET_FAILURE_SUBMIT_RESPONSE, payload: message });
+    dispatch({ type: ActionTypes.SET_FAILURE_SUBMIT_RESPONSE, payload: message });
   };
 
   const setSuccessSubmitResponse = message => {
-    dispatch({ type: ACTIONS.SET_SUCCESS_SUBMIT_RESPONSE, payload: message });
+    dispatch({ type: ActionTypes.SET_SUCCESS_SUBMIT_RESPONSE, payload: message });
   };
 
   const setLoadingFormStatus = () => {
-    dispatch({ type: ACTIONS.SET_LOADING_FORM_STATUS });
+    dispatch({ type: ActionTypes.SET_LOADING_FORM_STATUS });
   };
 
   const setFormErrors = formErrors => {
     dispatch({
-      type: ACTIONS.SET_FORM_ERRORS,
+      type: ActionTypes.SET_FORM_ERRORS,
       payload: { formErrors },
     });
   };
 
   const setFormInputsState = formInputsState => {
     dispatch({
-      type: ACTIONS.SET_FORM_INPUTS_STATE,
+      type: ActionTypes.SET_FORM_INPUTS_STATE,
       payload: formInputsState,
     });
   };
 
   const setFormValues = formValues => {
     dispatch({
-      type: ACTIONS.SET_FORM_VALUES,
+      type: ActionTypes.SET_FORM_VALUES,
       payload: { formValues },
+    });
+  };
+
+  const setFormStatus = formStatus => {
+    dispatch({
+      type: ActionTypes.SET_FORM_STATUS,
+      payload: { formStatus },
     });
   };
 
   const setErrorMessage = (inputName, errorMessage) => {
     dispatch({
-      type: ACTIONS.SET_ERROR_MESSAGE,
+      type: ActionTypes.SET_ERROR_MESSAGE,
       payload: { inputName, errorMessage },
     });
   };
 
   const setInputState = (inputName, inputState) => {
-    dispatch({ type: ACTIONS.SET_INPUT_STATE, payload: { inputName, inputState } });
+    dispatch({ type: ActionTypes.SET_INPUT_STATE, payload: { inputName, inputState } });
   };
 
   const setInputValue = (inputName, inputValue) => {
-    dispatch({ type: ACTIONS.SET_INPUT_VALUE, payload: { inputName, inputValue } });
+    dispatch({ type: ActionTypes.SET_INPUT_VALUE, payload: { inputName, inputValue } });
   };
 
   return {
@@ -221,6 +238,7 @@ const useForm = () => {
     setFormErrors,
     setFormInputsState,
     setFormValues,
+    setFormStatus,
     setErrorMessage,
     setInputState,
     setInputValue,

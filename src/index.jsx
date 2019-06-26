@@ -9,8 +9,9 @@ import { componentDidMount } from './utils';
 const Form = function Form({
   children,
   config: formConfig,
+  enableLogging,
+  initialStatus,
   initialValues,
-  onInputChangeParentHandler,
   onSubmit: onSubmitHandler,
   submitResponseMessages,
   validateAtDidMount,
@@ -30,9 +31,10 @@ const Form = function Form({
     setFormErrors,
     setFormInputsState,
     setFormValues,
+    setFormStatus,
     setInputValue,
     setInputState,
-  } = useForm();
+  } = useForm(enableLogging);
 
   const formService = new FormService({
     props: {
@@ -90,13 +92,11 @@ const Form = function Form({
 
       setFormInputsState(formInputsStateResulting);
     }
-  });
 
-  React.useEffect(() => {
-    if (onInputChangeParentHandler) {
-      onInputChangeParentHandler({ formErrors, formStatus, formValues });
+    if (initialStatus) {
+      setFormStatus(initialStatus);
     }
-  }, [formValues]);
+  });
 
   if (!formValues) return null;
 
@@ -122,13 +122,14 @@ const Form = function Form({
 };
 
 Form.propTypes = {
-  // See docs: https://diegofrayo-docs.netlify.com
+  // See docs: https://diegofrayo-docs.netlify.com/form#config
   config: PropTypes.object.isRequired,
   children: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 
+  enableLogging: PropTypes.bool,
+  initialStatus: PropTypes.oneOf([...Object.keys(FORM_STATUS), '']),
   initialValues: PropTypes.object,
-  onInputChangeParentHandler: PropTypes.func,
   submitResponseMessages: PropTypes.shape({
     success: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     failure: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
@@ -137,8 +138,9 @@ Form.propTypes = {
 };
 
 Form.defaultProps = {
+  enableLogging: false,
+  initialStatus: '',
   initialValues: {},
-  onInputChangeParentHandler: undefined,
   submitResponseMessages: {},
   validateAtDidMount: false,
 };
