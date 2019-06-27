@@ -3,3 +3,4 @@
 dist/
 docs/
 node_modules/
+src/redux-utils.js

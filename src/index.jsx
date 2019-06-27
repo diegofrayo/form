@@ -123,8 +123,8 @@ const Form = function Form({
 
 Form.propTypes = {
   // See docs: https://diegofrayo-docs.netlify.com/form#config
-  config: PropTypes.object.isRequired,
   children: PropTypes.func.isRequired,
+  config: PropTypes.object.isRequired,
   onSubmit: PropTypes.func.isRequired,
 
   enableLogging: PropTypes.bool,
