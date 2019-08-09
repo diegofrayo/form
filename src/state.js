@@ -12,6 +12,7 @@ const ActionTypes = formDuck.defineTypes([
   'SET_FAILURE_SUBMIT_RESPONSE',
   'SET_SUCCESS_SUBMIT_RESPONSE',
   'SET_LOADING_FORM_STATUS',
+  'SET_FORM_SUBMITTED_BY_FIRST_TIME',
   'SET_FORM_ERRORS',
   'SET_FORM_INPUTS_STATE',
   'SET_FORM_VALUES',
@@ -23,6 +24,7 @@ const ActionTypes = formDuck.defineTypes([
 
 // --- INITIAL STATE ---
 const initialState = {
+  isFormSubmittedByFirstTime: true,
   formErrors: {},
   formStatus: FORM_STATUS.VALID,
   formValues: null,
@@ -142,8 +144,9 @@ const reducerHandlers = {
   ...duck.mergeActions({
     types: [
       ActionTypes.SET_FORM_ERRORS,
-      ActionTypes.SET_FORM_VALUES,
       ActionTypes.SET_FORM_STATUS,
+      ActionTypes.SET_FORM_SUBMITTED_BY_FIRST_TIME,
+      ActionTypes.SET_FORM_VALUES,
     ],
     handler: (state, action) => {
       return {
@@ -183,6 +186,13 @@ const useForm = enableLogging => {
 
   const setLoadingFormStatus = () => {
     dispatch({ type: ActionTypes.SET_LOADING_FORM_STATUS });
+  };
+
+  const setFormSubmittedByFirstTime = isFormSubmittedByFirstTime => {
+    dispatch({
+      type: ActionTypes.SET_FORM_SUBMITTED_BY_FIRST_TIME,
+      payload: { isFormSubmittedByFirstTime },
+    });
   };
 
   const setFormErrors = formErrors => {
@@ -235,10 +245,11 @@ const useForm = enableLogging => {
     setFailureSubmitResponse,
     setSuccessSubmitResponse,
     setLoadingFormStatus,
+    setFormSubmittedByFirstTime,
+    setFormStatus,
     setFormErrors,
     setFormInputsState,
     setFormValues,
-    setFormStatus,
     setErrorMessage,
     setInputState,
     setInputValue,

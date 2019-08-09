@@ -1,6 +1,6 @@
 {
   "name": "@diegofrayo/form",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "React component to build and validate forms easily",
   "license": "MIT",
   "main": "dist/form.js",
@@ -35,6 +35,7 @@
     "@babel/preset-env": "^7.4.3",
     "@babel/preset-react": "^7.0.0",
     "@diegofrayo/eslint-config": "^1.0.3",
+    "@hot-loader/react-dom": "^16.8.6",
     "@testing-library/react": "^8.0.4",
     "babel-jest": "^24.7.1",
     "eslint": "latest",
@@ -46,6 +47,7 @@
     "prettier": "^1.16.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-hot-loader": "^4.12.10",
     "regenerator-runtime": "^0.13.2"
   },
   "peerDependencies": {

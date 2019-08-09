@@ -17,6 +17,7 @@ const Form = function Form({
   validateAtDidMount,
 }) {
   const {
+    isFormSubmittedByFirstTime,
     formErrors,
     formInputsState,
     formStatus,
@@ -28,6 +29,7 @@ const Form = function Form({
     setFailureSubmitResponse,
     setSuccessSubmitResponse,
     setLoadingFormStatus,
+    setFormSubmittedByFirstTime,
     setFormErrors,
     setFormInputsState,
     setFormValues,
@@ -49,6 +51,7 @@ const Form = function Form({
       formStatus,
       formValues,
       submitResponse,
+      isFormSubmittedByFirstTime,
     },
     stateHandlers: {
       resetSubmitResponse,
@@ -56,6 +59,7 @@ const Form = function Form({
       setFailureSubmitResponse,
       setSuccessSubmitResponse,
       setLoadingFormStatus,
+      setFormSubmittedByFirstTime,
       setFormErrors,
       setFormInputsState,
       setFormValues,
@@ -89,7 +93,6 @@ const Form = function Form({
       setFormInputsState(formInputsStateResulting);
     } else {
       const formInputsStateResulting = formService.getFormInputsState(formConfig);
-
       setFormInputsState(formInputsStateResulting);
     }
 

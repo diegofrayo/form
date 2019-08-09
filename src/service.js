@@ -1,5 +1,7 @@
 import { vlt, TypesValidator, ValidationError } from '@diegofrayo/vlt';
 
+import { isFormValid } from './utils';
+
 export default class FormService {
   constructor({ props, state, stateHandlers }) {
     this.props = props;
@@ -122,8 +124,8 @@ export default class FormService {
             // eslint-disable-next-line no-param-reassign
             result.formErrors[errorInputName] = errorInputMessage;
 
-            // eslint-disable-next-line no-param-reassign
-            result.formInputsState[inputName] = false;
+            // eslint-disable-next-line no-param-reassign, no-unneeded-ternary
+            result.formInputsState[inputName] = errorInputMessage ? false : true;
           });
         } else {
           throw new Error(`${inputName} 'isValid' handler returns an invalid value`);
@@ -144,8 +146,14 @@ export default class FormService {
       submitResponseMessages,
       validateAtDidMount,
     } = this.props;
-    const { formErrors, formInputsState, formValues } = this.state;
     const {
+      formErrors,
+      formInputsState,
+      formValues,
+      isFormSubmittedByFirstTime,
+    } = this.state;
+    const {
+      setFormSubmittedByFirstTime,
       setFormErrors,
       setFormInputsState,
       setLoadingFormStatus,
@@ -153,7 +161,7 @@ export default class FormService {
       setSuccessSubmitResponse,
     } = this.stateHandlers;
 
-    if (!validateAtDidMount && this._onSubmitFiredByFirstTime()) {
+    if (!validateAtDidMount && isFormSubmittedByFirstTime) {
       const {
         formErrors: formErrorsResulting,
         formInputsState: formInputsStateResulting,
@@ -164,8 +172,13 @@ export default class FormService {
         formInputsState,
       });
 
+      setFormSubmittedByFirstTime(false);
       setFormInputsState(formInputsStateResulting);
       setFormErrors(formErrorsResulting);
+
+      if (!isFormValid(formInputsStateResulting)) {
+        return;
+      }
     }
 
     const transformedValues = Object.entries(formConfig).reduce(
@@ -184,6 +197,7 @@ export default class FormService {
       {},
     );
 
+    setFormSubmittedByFirstTime(false);
     const onSubmitHandlerResult = onSubmitHandler(transformedValues);
 
     if (TypesValidator.isPromise(onSubmitHandlerResult)) {
@@ -339,14 +353,5 @@ export default class FormService {
     }
 
     return submitResponseMessage;
-  };
-
-  _onSubmitFiredByFirstTime = () => {
-    if (this.onSubmitFiredByFirstTime === undefined) {
-      this.onSubmitFiredByFirstTime = false;
-      return true;
-    }
-
-    return false;
   };
 }
